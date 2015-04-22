@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.net.URISyntaxException;
+
 import org.apache.http.client.ClientProtocolException;
+
 import rest.restClient;
 
 public class samples {
@@ -8,8 +10,14 @@ public class samples {
 	static String interact2_login_url = "https://login2.responsys.net";
 	static String interact5_login_url = "https://login5.responsys.net";
 	
-	static String api_user = "";
-	static String password = "";
+	static String api_user = "mason***";
+	static String cert_user= "mason***";
+	static String password = "*****";
+	
+	static String ResponsysClientCert  = "/Users/mdixon/Documents/certificatefun/ResponsysServerCertificate.cer";
+	static String MasonsKeyStore       = "/Users/mdixon/Documents/certificatefun/mdixon/mason.keystore";
+	static String MasonsKeyAlias       = "*****";
+	static String MasonsKeyPass        = "*****";
 	
 	static restClient rest_instance;
 	
@@ -18,10 +26,13 @@ public class samples {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
 		// TODO Auto-generated method stub	
+
 		samples run = new samples();
 		//run.generateTokenAndEndPoint();
+		run.loginWithCert();
 		//run.run_merge_record();
 		//run.run_merge_and_trigger();
 		//run.run_trigger_custom_event();
@@ -32,14 +43,49 @@ public class samples {
 	 * Tokens are persisted as http headers
 	 * endpoint becomes the new service url for service requests, they are dynamic and may change with each login call
 	 */
-	public void generateTokenAndEndPoint(){
-		
+	public void generateTokenAndEndPoint()
+	{
 		rest_instance = new restClient();
 		
-		try {
+		try 
+		{
 			boolean is_logged_in = rest_instance.generateAuthToken( api_user, password, interact5_login_url );
 			System.out.println("auth token : " + rest_instance.authToken );
 			System.out.println("end point : " + rest_instance.endPoint );
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Exmaple of loginWithCertificate
+	 * @param user_name
+	 * @param login_url
+	 * @param client_challenge
+	 * @param path_to_responsys_cert
+	 * @param path_to_keystore
+	 * @param keystore_alias
+	 * @param keystore_pass
+	 */
+	public void loginWithCert(){
+		rest_instance = new restClient();
+		try {
+				boolean is_logged_in = rest_instance.loginWithCertificate(cert_user, interact5_login_url, "sillyString", ResponsysClientCert, MasonsKeyStore, MasonsKeyAlias, MasonsKeyPass );
+				if( is_logged_in )
+			{
+				System.out.println("auth token : " + rest_instance.authToken );
+				System.out.println("end point : " + rest_instance.endPoint );
+			}
+			else
+			{
+				System.out.println( "*** Houston we have a problem ***");
+				System.out.println( "*** LoginWithCert Failed ***");
+			}
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -71,9 +117,9 @@ public class samples {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * Example of merging a recipient then triggering an email to that recipeint in a single operation
+	 * Example of merging a recipient then triggering an email to that recipient in a single operation
 	 * JSON has been supplied as example
 	 */
 	public void run_merge_and_trigger(){
